@@ -236,18 +236,20 @@ function sendAjaxByBack(id, req, successFn, errorFn) {
         if (req.files) {
             let allPromise = [];
             for (var name in req.files) {
-                let fileTransfer = new Promise(function (resolve, reject){
-                    var files = document.getElementById(req.files[name]).files;
-                    let file = files[0]
-                    var reader = new FileReader();
-                    reader.name = name;
-                    reader.fileName = file.name;
-                    reader.onload = function () {
-                        resolve({name: this.name, value: this.result,is_file: true, fileName: this.fileName});
-                    }
-                    reader.readAsDataURL(file);
-                })
-                allPromise.push(fileTransfer);
+                var files = document.getElementById(req.files[name]).files;
+                for(let i=0;i<files.length;i++) {
+                    let fileTransfer = new Promise(function (resolve, reject){
+                        let file = files[i];
+                        var reader = new FileReader();
+                        reader.name = name;
+                        reader.fileName = file.name;
+                        reader.onload = function () {
+                            resolve({name: this.name, value: this.result,is_file: true, fileName: this.fileName});
+                        }
+                        reader.readAsDataURL(file);
+                    })
+                    allPromise.push(fileTransfer);
+                }
             }
             Promise.all(allPromise).then(function(result){
                 formDatas = formDatas.concat(result);
